@@ -63,6 +63,7 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.ViewHolder>
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
                     db.updateStatus(id, 1, "todo");
+
                 } else {
                     db.updateStatus(id, 0, "todo");
                 }
