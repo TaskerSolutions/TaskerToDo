@@ -17,6 +17,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.taskersolutions.tasker_todolist.Model.ToDoModel;
 import com.taskersolutions.tasker_todolist.Utils.DatabaseHandler;
 
+import java.util.Objects;
+
 import androidx.core.content.ContextCompat;
 
 public class AddNewTask extends BottomSheetDialogFragment {
@@ -36,7 +38,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
     //saved instance state checks if the item already exists in memory
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(STYLE_NORMAL, R.style.DialogStyle);
+        //setStyle(STYLE_NORMAL, R.style.DialogStyle);
     }
 
     @Override
@@ -52,6 +54,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
         newTaskText = getView().findViewById(R.id.newTaskText);
         newTaskSaveButton = getView().findViewById(R.id.newTaskButton);
 
+
         db = new DatabaseHandler(getActivity());
         db.openDatabase();
 
@@ -61,29 +64,29 @@ public class AddNewTask extends BottomSheetDialogFragment {
             isUpdate = true;
             String task = bundle.getString("task");
             newTaskText.setText(task);
-            if (task.length() > 0) {
-                newTaskSaveButton.setTextColor(ContextCompat.getColor(getContext(),R.color.colorPrimary));
+            assert task != null;
+            // set button to disabled if task is empty
+            if (task.length() < 1) {
+                newTaskSaveButton.setEnabled(false);
+                newTaskSaveButton.setTextColor(Color.GRAY);
             }
         }
+
         newTaskText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(charSequence.toString().equals("")) {
+                if(charSequence.length() == 0) {
                     newTaskSaveButton.setEnabled(false);
                     newTaskSaveButton.setTextColor(Color.GRAY);
                 } else {
                     newTaskSaveButton.setEnabled(true);
-                    newTaskSaveButton.setTextColor(ContextCompat.getColor(getContext(),R.color.colorPrimary));
+                    newTaskSaveButton.setTextColor(Color.BLACK);
                 }
             }
-
             @Override
-            public void afterTextChanged(Editable editable) {
-            }
+            public void afterTextChanged(Editable editable) {}
         });
 
         boolean finalIsUpdate = isUpdate;
@@ -92,12 +95,12 @@ public class AddNewTask extends BottomSheetDialogFragment {
             public void onClick(View v) {
                 String text = newTaskText.getText().toString();
                 if (finalIsUpdate) {
-                    db.updateTask(bundle.getInt("id"), text);
+                    db.updateTask(bundle.getInt("id"), text, "todo");
                 } else {
                     ToDoModel task = new ToDoModel();
                     task.setTask(text);
                     task.setStatus(0);
-                    db.insertTask(task);
+                    db.insertTask(task, "todo");
                 }
                 dismiss();
             }

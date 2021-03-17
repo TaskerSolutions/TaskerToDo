@@ -13,7 +13,7 @@
         android:id="@+id/todoCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tool:text="sample task @@@@@@@@@@@@@@@@@@@@@@@@@"
+        tool:text="sample task @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
         android:paddingStart="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="14dp"

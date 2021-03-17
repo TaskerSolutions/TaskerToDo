@@ -1,0 +1,28 @@
+refresh recycler view each time user interacts with anything:
+- ?
+
+add completed tasks list:
+- move completed tasks to completed section, and visa versa when task is unchecked
+- use the same table, and move items to completed based on their checked status
+
+
+move deleted tasks into an archive:
+- add temporary "deleted" toast & undo button when task is deleted
+- add archived tag in database
+
+
+create archived tasks section:
+- move confirm deletion popup  to 'empty archived tasks'
+
+
+add daily task function:
+- reset once per day/week/specific day of year depending on what user chooses
+
+
+add push notifications:
+- ability to change notification settings, vibration, sound etc
+
+
+When task is being added / edited:
+- make the new task appear in to do list automatically, and editable from there
+- automatically place focus of cursor into text field
