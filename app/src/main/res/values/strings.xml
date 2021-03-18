@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">Tasker - To Do List</string>
+    <string name="app_name">Tasker - To Do</string>
+    <string name="archive">Archive</string>
+    <string name="to_do">To-Do</string>
+    <string name="add_task">Add task</string>
+    <string name="delete_forever">Delete forever</string>
 </resources>

@@ -19,6 +19,7 @@
         android:layout_marginBottom="14dp"
         android:layout_marginStart="6dp"
         android:layout_marginEnd="14dp"
+        android:textColor="@color/white"
         android:lineHeight="24sp"
         android:buttonTint="@android:color/holo_blue_dark"/>
 

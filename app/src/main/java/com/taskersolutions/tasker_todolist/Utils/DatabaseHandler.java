@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Paint;
 
 import com.taskersolutions.tasker_todolist.Model.ToDoModel;
 
@@ -16,13 +17,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final int VERSION = 1;
     private static final String NAME = "toDoListDatabase";
     private static final String TODO_TABLE = "todo";
-    private static final String COMPLETED_TABLE = "completed";
+    private static final String ARCHIVE_TABLE = "archive";
     private static final String ID = "id";
     private static final String TASK = "task";
     private static final String STATUS = "status";
     private static final String CREATE_TODO_TABLE = "CREATE TABLE " + TODO_TABLE + "(" + ID
             + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TASK + " TEXT, " + STATUS + " INTEGER)";
-    private static final String CREATE_COMPLETED_TABLE = "CREATE TABLE " + COMPLETED_TABLE + "(" + ID
+    private static final String CREATE_ARCHIVE_TABLE = "CREATE TABLE " + ARCHIVE_TABLE + "(" + ID
             + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TASK + " TEXT, " + STATUS + " INTEGER)";
 
     private SQLiteDatabase db;
@@ -34,14 +35,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TODO_TABLE);
-        db.execSQL(CREATE_COMPLETED_TABLE);
+        db.execSQL(CREATE_ARCHIVE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         //  Drop the older tables
         db.execSQL("DROP TABLE IF EXISTS " + TODO_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS " + COMPLETED_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + ARCHIVE_TABLE);
         // create table again
         onCreate(db);
     }
@@ -57,7 +58,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.insert(table, null, cv);
     }
 
-    public List<ToDoModel> getAllTasks() {
+    public List<ToDoModel> getAllTasks(String table) {
         List<ToDoModel> taskList = new ArrayList<>();
 
         Cursor cur = null;
@@ -65,7 +66,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.beginTransaction();
         try {
             // return all rows from database without criteria
-            String query = "SELECT * FROM todo";
+            String query = "SELECT * FROM " + table;
             cur = db.rawQuery(query, null);
             if (cur != null) {
                 // if cursor is on first row
@@ -76,6 +77,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         task.setTask(cur.getString(cur.getColumnIndex(TASK)));
                         task.setStatus(cur.getInt(cur.getColumnIndex(STATUS)));
                         taskList.add(task);
+
                     } while(cur.moveToNext());
                 }
             }
@@ -108,14 +110,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // get the task and task status and save in cv
         cv.put(TASK, task);
         cv.put(STATUS, status);
-        //insert cv into new table row
         db.insert(newTable, null, cv);
+        deleteTask(id, oldTable);
 
         //db.execSQL("INSERT INTO " + newTable + " (task, status) SELECT task, status FROM "
         //        + oldTable + " WHERE id=" + id);
+    }
 
-        //delete task from old table
-        deleteTask(id, oldTable);
+    public void clearTable(String table) {
+        db.execSQL("DELETE FROM " + table);
+
     }
 
 }

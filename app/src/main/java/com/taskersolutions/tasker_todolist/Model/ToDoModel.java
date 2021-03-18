@@ -30,4 +30,5 @@ public class ToDoModel {
     public void setTask(String task) {
         this.task = task;
     }
+
 }

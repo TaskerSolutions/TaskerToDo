@@ -1,6 +1,8 @@
 package com.taskersolutions.tasker_todolist.Adapter;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.taskersolutions.tasker_todolist.AddNewTask;
@@ -20,6 +23,7 @@ import com.taskersolutions.tasker_todolist.R;
 import com.taskersolutions.tasker_todolist.Utils.DatabaseHandler;
 import com.taskersolutions.tasker_todolist.Utils.ItemTouchHelperAdapter;
 
+import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -30,19 +34,19 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.ViewHolder>
         implements ItemTouchHelperAdapter {
 
     private static ItemTouchHelper touchHelper;
-    private List<ToDoModel> list;
-    private List<ToDoModel> archiveList;
+    private List<ToDoModel> oldList;
+    private List<ToDoModel> newList;
 
     private MainActivity activity;
     private DatabaseHandler db;
 
     public ToDoAdapter(DatabaseHandler db, MainActivity activity,
-                       List<ToDoModel> list,
-                       List<ToDoModel> archiveList) {
+                       List<ToDoModel> oldList,
+                       List<ToDoModel> newList) {
         this.db = db;
         this.activity = activity;
-        this.list = list;
-        this.archiveList = archiveList;
+        this.oldList = oldList;
+        this.newList = newList;
     }
 
     @NonNull
@@ -54,18 +58,33 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.ViewHolder>
 
     public void onBindViewHolder(ViewHolder holder, int position) {
         db.openDatabase();
-        ToDoModel item = list.get(position);
-        int id = item.getId();
+        ToDoModel item = oldList.get(position);
         holder.task.setText(item.getTask());
         holder.task.setChecked(toBoolean(item.getStatus()));
         holder.task.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    db.updateStatus(id, 1, "todo");
+                    // move checked item to bottom of the list
+                    // causing app to crash when new task is added
+                    /*
+                    if (holder.getAdapterPosition() < oldList.size() - 1) {
+                        Collections.swap(oldList, holder.getAdapterPosition(), oldList.size() - 1);
+                        notifyItemMoved(holder.getAdapterPosition(), oldList.size() - 1);
+                    }
 
+                     */
+                    db.updateStatus(item.getId(), 1, "todo");
                 } else {
-                    db.updateStatus(id, 0, "todo");
+                    // move unchecked item to top of the list
+                    /*
+                    if (holder.getAdapterPosition() > 0) {
+                        Collections.swap(oldList, holder.getAdapterPosition(), 0);
+                        notifyItemMoved(holder.getAdapterPosition(), 0);
+                    }
+
+                     */
+                    db.updateStatus(item.getId(), 0, "todo");
                 }
                 //Log.e("log:", "item status changed");
             }
@@ -74,7 +93,7 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.ViewHolder>
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return oldList.size();
     }
 
     // helper to convert int to boolean
@@ -84,44 +103,45 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.ViewHolder>
     }
 
     public void setTasks(List<ToDoModel> list) {
-        this.list = list;
+        this.oldList = list;
         notifyDataSetChanged();
     }
 
-    public void deleteItem(RecyclerView recyclerView, int position, String table) {
+    public void restoreItem(RecyclerView recyclerView, int position) {
+        //Log.e("Position:", String.valueOf(position));
+        ToDoModel archivedTask = oldList.get(position);
+        newList.add(archivedTask);
+        db.moveTask(archivedTask.getId(), archivedTask.getTask(), archivedTask.getStatus(), "todo", "archive");
+
+        oldList.remove(position);
+        notifyItemRemoved(position);
+
+        //Log.e("Archive List: ", String.valueOf(archiveList.size()));
+
+        Toast.makeText(getContext(), "Restored task: " + archivedTask.getTask(), Toast.LENGTH_SHORT).show();
+    }
+
+    public void archiveItem(RecyclerView recyclerView, int position) {
        // Log.e("Position:", String.valueOf(position));
-        ToDoModel archivedTask = list.get(position);
-        archiveList.add(archivedTask);
-        list.remove(position);
+        ToDoModel archivedTask = oldList.get(position);
+        newList.add(archivedTask);
+        db.moveTask(archivedTask.getId(), archivedTask.getTask(), archivedTask.getStatus(), "archive", "todo");
+        oldList.remove(position);
         notifyItemRemoved(position);
         Snackbar.make(recyclerView, "Archived task: " + archivedTask.getTask(), Snackbar.LENGTH_LONG)
                 .setAction("Undo", new View.OnClickListener(){
                     @Override
                     public void onClick(View view) {
-                        archiveList.remove(archiveList.lastIndexOf(archivedTask));
-                        list.add(position, archivedTask);
+                        db.moveTask(archivedTask.getId(), archivedTask.getTask(), archivedTask.getStatus(), "todo", "archive");
+                        newList.remove(newList.lastIndexOf(archivedTask));
+                        oldList.add(position, archivedTask);
                         notifyItemInserted(position);
                     }
                 }).show();
-
-        /*
-        ToDoModel item = list.get(position);
-        db.deleteTask(item.getId(), table);
-        list.remove(position);
-        notifyItemRemoved(position);
-        Snackbar.make(recyclerView, "Deleted task: " + item.getTask(), Snackbar.LENGTH_LONG)
-                .setAction("Undo", new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                list.add(position, item);
-                notifyItemInserted(position);
-            }
-        }).show();
-         */
     }
 
     public void editItem(int position) {
-        ToDoModel item = list.get(position);
+        ToDoModel item = oldList.get(position);
         Bundle bundle = new Bundle();
         bundle.putInt("id", item.getId());
         bundle.putString("task", item.getTask());
@@ -136,36 +156,15 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.ViewHolder>
 
     @Override
     public void onItemMove(int fromPosition, int toPosition) {
-        ToDoModel fromItem = list.get(fromPosition);
-        list.remove(fromItem);
-        list.add(toPosition, fromItem);
+        ToDoModel fromItem = oldList.get(fromPosition);
+        oldList.remove(fromItem);
+        oldList.add(toPosition, fromItem);
         notifyItemMoved(fromPosition, toPosition);
     }
 
     @Override
     public void onItemSwiped(int position) {
-        /* delete task confirmation dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(adapter.getContext());
-        builder.setTitle("Delete task");
-        builder.setMessage("Are you sure you want to delete this task?");
-        builder.setPositiveButton("Confirm",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        adapter.deleteItem(position, "todo");
-                    }
-                });
-        builder.setNegativeButton(android.R.string.cancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        adapter.notifyItemChanged(viewHolder.getAdapterPosition());
-                    }
-                });
-        AlertDialog dialog = builder.create();
-        dialog.setCanceledOnTouchOutside(true);
-        dialog.show();
-        */
+
     }
 
     public void setTouchHelper (ItemTouchHelper touchHelper) {

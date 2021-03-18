@@ -6,20 +6,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
-        android:id="@+id/tasksText"
+        android:id="@+id/archiveText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        android:text="@string/to_do"
+        android:text="@string/archive"
         android:textColor="@color/white"
         android:layout_margin="15dp"
         android:textSize="20sp" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/archiveButton"
+        android:id="@+id/toDoButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/archive"
+        android:text="@string/to_do"
         android:textAllCaps="false"
         android:background="@color/color4"
         android:textColor="#BCBCBC"
@@ -28,32 +28,32 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"/>
 
-
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/tasksRecyclerView"
+        android:id="@+id/archiveRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/color5"
-        android:layout_below="@+id/tasksText"
+        android:layout_below="@+id/archiveText"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:nestedScrollingEnabled="true" />
 
 
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAdd"
+        android:id="@+id/fabDelete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="30dp"
         android:layout_marginEnd="30dp"
-        android:backgroundTint="@color/color3"
         android:elevation="8dp"
         app:borderWidth="0dp"
-        app:maxImageSize="36dp"
+        android:backgroundTint="@color/color6"
+        android:src="@drawable/ic_delete_forever"
         app:tint="@color/white"
-        android:src="@drawable/ic_baseline_add"
-        android:contentDescription="@string/add_task" />
+        app:maxImageSize="36dp"
+        android:contentDescription="@string/delete_forever" />
 
 
 </RelativeLayout>
