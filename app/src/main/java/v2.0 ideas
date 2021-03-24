@@ -1,16 +1,9 @@
+--- Version 2 update ideas ---
 
 When task is being added / edited:
      - move the new task button to the bottom of recycler view as a permanent card
      - make the new task appear in to do list automatically, and editable from there
      - automatically place focus of cursor into text field
-
-
-
-
-
-
-
---- Version 2 update ideas ---
 
 Add reoccurring task function:
      - reset once per day/week/specific day of year depending on what user chooses

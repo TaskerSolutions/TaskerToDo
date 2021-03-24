@@ -101,6 +101,8 @@ public class MainActivity extends AppCompatActivity implements DialogCloseListen
                 // change view to archive
                 setContentView(R.layout.activity_archive);
                 openArchive();
+                archiveList = db.getAllTasks("archive");
+                archiveAdapter.setTasks(archiveList);
             }
         });
     }
@@ -137,6 +139,8 @@ public class MainActivity extends AppCompatActivity implements DialogCloseListen
                 // change view to To Do
                 setContentView(R.layout.activity_main);
                 openToDo();
+                taskList = db.getAllTasks("todo");
+                tasksAdapter.setTasks(taskList);
             }
         });
 

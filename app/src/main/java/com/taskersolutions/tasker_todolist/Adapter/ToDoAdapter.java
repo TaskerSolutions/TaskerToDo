@@ -72,17 +72,15 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.ViewHolder>
                         Collections.swap(oldList, holder.getAdapterPosition(), oldList.size() - 1);
                         notifyItemMoved(holder.getAdapterPosition(), oldList.size() - 1);
                     }
-
                      */
                     db.updateStatus(item.getId(), 1, "todo");
                 } else {
                     // move unchecked item to top of the list
-                    /*
+                    /* After position is changed, wrong item is being archived/restored (positions aren't updating properly)
                     if (holder.getAdapterPosition() > 0) {
                         Collections.swap(oldList, holder.getAdapterPosition(), 0);
                         notifyItemMoved(holder.getAdapterPosition(), 0);
                     }
-
                      */
                     db.updateStatus(item.getId(), 0, "todo");
                 }
@@ -112,10 +110,8 @@ public class ToDoAdapter extends RecyclerView.Adapter<ToDoAdapter.ViewHolder>
         ToDoModel archivedTask = oldList.get(position);
         newList.add(archivedTask);
         db.moveTask(archivedTask.getId(), archivedTask.getTask(), archivedTask.getStatus(), "todo", "archive");
-
         oldList.remove(position);
         notifyItemRemoved(position);
-
         //Log.e("Archive List: ", String.valueOf(archiveList.size()));
 
         Toast.makeText(getContext(), "Restored task: " + archivedTask.getTask(), Toast.LENGTH_SHORT).show();

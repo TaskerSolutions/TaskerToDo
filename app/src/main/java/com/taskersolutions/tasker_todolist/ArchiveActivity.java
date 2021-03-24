@@ -104,7 +104,7 @@ public class ArchiveActivity extends AppCompatActivity implements DialogCloseLis
     @Override
     public void handleDialogClose(DialogInterface dialog) {
         //archiveList = db.getAllTasks("archive");
-        //archiveAdapter.setTasks(taskList);
+        //archiveAdapter.setTasks(archiveList);
     }
 
 }

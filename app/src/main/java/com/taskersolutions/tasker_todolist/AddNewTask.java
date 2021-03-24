@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,11 +53,16 @@ public class AddNewTask extends BottomSheetDialogFragment {
     public void onViewCreated(View view, Bundle SavedInstanceState) {
         super.onViewCreated(view, SavedInstanceState);
         newTaskText = getView().findViewById(R.id.newTaskText);
+        newTaskText.setFocusableInTouchMode(true);
+        newTaskText.requestFocus();
         newTaskSaveButton = getView().findViewById(R.id.newTaskButton);
-
 
         db = new DatabaseHandler(getActivity());
         db.openDatabase();
+
+        // set button to disabled by default
+        newTaskSaveButton.setEnabled(false);
+        newTaskSaveButton.setTextColor(Color.GRAY);
 
         boolean isUpdate = false;
         final Bundle bundle = getArguments();
@@ -65,11 +71,14 @@ public class AddNewTask extends BottomSheetDialogFragment {
             String task = bundle.getString("task");
             newTaskText.setText(task);
             assert task != null;
-            // set button to disabled if task is empty
-            if (task.length() < 1) {
-                newTaskSaveButton.setEnabled(false);
-                newTaskSaveButton.setTextColor(Color.GRAY);
+            // enable button if task length is > 0
+            if (task.length() > 0) {
+                Log.e("TASK LENGTH: ", String.valueOf(task.length()));
+                newTaskSaveButton.setEnabled(true);
+                newTaskSaveButton.setTextColor(Color.BLACK);
             }
+            // place cursor focus at end of existing text
+            newTaskText.setSelection(newTaskText.getText().length());
         }
 
         newTaskText.addTextChangedListener(new TextWatcher() {
@@ -77,7 +86,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(charSequence.length() == 0) {
+                if(charSequence.length() <= 0) {
                     newTaskSaveButton.setEnabled(false);
                     newTaskSaveButton.setTextColor(Color.GRAY);
                 } else {
